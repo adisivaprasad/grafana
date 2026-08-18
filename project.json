@@ -53,7 +53,7 @@
           "target": "build"
         }
       ],
-      "outputs": ["{workspaceRoot}/public/build-rspack", "{workspaceRoot}/public/build-swagger"],
+      "outputs": ["{workspaceRoot}/public/build-rspack"],
       "cache": true
     },
     "build:rspack": {
@@ -64,7 +64,7 @@
           "target": "build"
         }
       ],
-      "outputs": ["{workspaceRoot}/public/build-rspack"],
+      "outputs": ["{workspaceRoot}/public/build-rspack", "{workspaceRoot}/public/build-swagger"],
       "cache": true
     },
     "build:swagger": {
