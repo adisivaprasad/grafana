@@ -97,7 +97,7 @@ func TestTemplates(t *testing.T) {
 			getUserByLoginOrEmailTemplate: {
 				{
 					Name: "by_email",
-					Data: &getUserByLoginOrEmailQuery{
+					Data: &getUserByIdentifierQuery{
 						SQLTemplate:      queryTemplate(),
 						UserTable:        dbHelper.Table("user"),
 						Identifier:       "alice@example.com",
@@ -106,7 +106,7 @@ func TestTemplates(t *testing.T) {
 				},
 				{
 					Name: "by_login",
-					Data: &getUserByLoginOrEmailQuery{
+					Data: &getUserByIdentifierQuery{
 						SQLTemplate:      queryTemplate(),
 						UserTable:        dbHelper.Table("user"),
 						Identifier:       "alice",
