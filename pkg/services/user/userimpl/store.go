@@ -506,7 +506,6 @@ func (ss *sqlStore) GetSignedInUser(ctx context.Context, query *user.GetSignedIn
 			return err
 		}
 
-		sess.Session = sess.Context(ctx)
 		has, err := sess.SQL(rawSQL, sqlQuery.GetArgs()...).Get(&signedInUser)
 		if err != nil {
 			return err
