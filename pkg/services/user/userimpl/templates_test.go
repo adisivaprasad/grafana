@@ -317,6 +317,6 @@ func TestSearchUserWhereFilterPreservesSliceValue(t *testing.T) {
 func TestQueryValidation(t *testing.T) {
 	require.ErrorIs(t, (&signedInUserQuery{}).Validate(), user.ErrNoUniqueID)
 	require.ErrorContains(t, (&batchDisableUsersQuery{}).Validate(), "user IDs must not be empty")
-	require.ErrorContains(t, (&getUserByIdentifierQuery{}).Validate(), "invalid user identifier column")
+	require.ErrorContains(t, (&getUserQuery{}).Validate(), "invalid user identifier column")
 	require.NoError(t, (&searchUsersQuery{Filters: []searchUserFilter{{Kind: "in"}}}).Validate())
 }
