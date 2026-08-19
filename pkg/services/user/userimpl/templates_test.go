@@ -60,6 +60,7 @@ func TestTemplates(t *testing.T) {
 				},
 			}
 			query.Sorts = []string{"u.login DESC", "u.email ASC"}
+			query.UseDefaultSort = false
 			query.Limit = 25
 			query.Offset = 50
 		}
@@ -312,6 +313,83 @@ func TestSearchUserWhereFilterPreservesSliceValue(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, filter.Parts, 2)
 	require.Equal(t, value, filter.Parts[1].Value)
+}
+
+type testSearchUserFilter struct {
+	where *user.WhereCondition
+	in    *user.InCondition
+	join  *user.JoinCondition
+}
+
+func (f testSearchUserFilter) WhereCondition() *user.WhereCondition {
+	return f.where
+}
+
+func (f testSearchUserFilter) InCondition() *user.InCondition {
+	return f.in
+}
+
+func (f testSearchUserFilter) JoinCondition() *user.JoinCondition {
+	return f.join
+}
+
+func TestBuildSearchUserFilters(t *testing.T) {
+	dbHelper := &legacysql.LegacyDatabaseHelper{
+		Table: func(name string) string {
+			return "test_schema." + name
+		},
+	}
+
+	joins, filters, err := buildSearchUserFilters(dbHelper, []user.Filter{
+		testSearchUserFilter{
+			join: &user.JoinCondition{
+				Operator: "INNER",
+				Table:    "user_stats",
+				Params:   "user_stats.user_id = u.id",
+			},
+			in: &user.InCondition{
+				Condition: "user_stats.billing_role",
+				Params:    []string{"admin", "editor"},
+			},
+			where: &user.WhereCondition{
+				Condition: "is_admin = ?",
+				Params:    true,
+			},
+		},
+	})
+
+	require.NoError(t, err)
+	require.Equal(t, []searchUserJoin{{
+		Operator:  "INNER",
+		Table:     "test_schema.user_stats",
+		Alias:     "user_stats",
+		Condition: "user_stats.user_id = u.id",
+	}}, joins)
+	require.Equal(t, []searchUserFilter{
+		{
+			Kind:      "in",
+			Condition: "user_stats.billing_role",
+			Values:    []any{"admin", "editor"},
+		},
+		{
+			Kind: "where",
+			Parts: []searchUserConditionPart{
+				{SQL: "is_admin = "},
+				{Value: true, HasValue: true},
+			},
+		},
+	}, filters)
+}
+
+func TestBuildSearchUserFiltersRejectsMalformedWhereCondition(t *testing.T) {
+	_, _, err := buildSearchUserFilters(&legacysql.LegacyDatabaseHelper{}, []user.Filter{
+		testSearchUserFilter{where: &user.WhereCondition{
+			Condition: "is_admin = ? AND is_disabled = ?",
+			Params:    true,
+		}},
+	})
+
+	require.ErrorContains(t, err, "search filter condition must have one placeholder")
 }
 
 func TestQueryValidation(t *testing.T) {

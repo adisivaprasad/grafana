@@ -861,11 +861,9 @@ func (ss *sqlStore) Search(ctx context.Context, query *user.SearchUsersQuery) (*
 			IsDisabled:      query.IsDisabled,
 			Filters:         queryFilters,
 			Sorts:           sorts,
-			UseDefaultSort:  len(query.SortOpts) == 0,
+			UseDefaultSort:  len(sorts) == 0,
 			IncludeAuthJoin: true,
-		}
-		if query.AuthModule != "" {
-			searchQuery.AuthModule = query.AuthModule
+			AuthModule:      query.AuthModule,
 		}
 		if query.Limit > 0 {
 			searchQuery.Limit = query.Limit

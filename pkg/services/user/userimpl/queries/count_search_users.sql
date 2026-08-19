@@ -1,3 +1,4 @@
+{{/* search_users_where is defined in search_users.sql. */}}
 SELECT COUNT(*) AS count
 FROM {{ .Ident .UserTable }} AS u
 {{ if .IncludeAuthJoin -}}
